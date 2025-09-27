@@ -70,7 +70,7 @@ cd Task-manager
 
 2. **Set up the Backend:**
 ```bash
-cd task-manager-backend
+cd backend
 npm install
 
 # Set up MongoDB (choose one option):
@@ -85,9 +85,9 @@ echo "MONGODB_URI=your_mongodb_atlas_connection_string" > .env
 npm start
 ```
 
-3. **Set up the Frontend:**
+3. **Set up the Frontend (open new terminal):**
 ```bash
-cd ../task-manager
+# From the root directory
 npm install
 npm run dev
 ```
@@ -114,8 +114,8 @@ The build artifacts will be stored in the `dist/` directory.
 ## 📁 Project Structure
 
 ```
-task-manager/
-├── task-manager-backend/          # Express.js Backend
+task-manager/                      # Unified Full-Stack Repository
+├── backend/                       # Express.js Backend
 │   ├── models/
 │   │   ├── User.js              # User authentication model
 │   │   └── Task.js              # Task management model
@@ -126,33 +126,35 @@ task-manager/
 │   ├── middleware/
 │   │   └── auth.js              # JWT authentication middleware
 │   ├── utils/
-│   │   └── dbConnection.js      # Database connection handler
+│   │   ├── dbConnection.js      # Database connection handler
+│   │   └── fileStorage.js       # File storage fallback
 │   ├── server.js                     # Main server file
-│   └── package.json
+│   └── package.json                  # Backend dependencies
 │
-└── task-manager/                  # React Frontend
-    ├── src/
-    │   ├── components/
-    │   │   ├── AuthForm.jsx         # Login/Registration form
-    │   │   ├── NotificationSystem.jsx
-    │   │   ├── TaskFilter.jsx
-    │   │   ├── TaskForm.jsx
-    │   │   ├── TaskItem.jsx
-    │   │   ├── TaskList.jsx
-    │   │   ├── TaskSearch.jsx
-    │   │   ├── TaskStats.jsx
-    │   │   └── ThemeToggle.jsx
-    │   ├── contexts/
-    │   │   └── AuthContext.jsx      # Authentication context
-    │   ├── services/
-    │   │   └── taskAPI.js           # API service layer
-    │   ├── App.jsx                      # Main app component
-    │   ├── App.css                      # Enhanced styling
-    │   ├── index.css                    # Global styles
-    │   └── main.jsx
-    ├── index.html
-    ├── package.json
-    └── vite.config.js
+├── src/                           # React Frontend
+│   ├── components/
+│   │   ├── AuthForm.jsx         # Login/Registration form
+│   │   ├── NotificationSystem.jsx
+│   │   ├── TaskFilter.jsx
+│   │   ├── TaskForm.jsx
+│   │   ├── TaskItem.jsx
+│   │   ├── TaskList.jsx
+│   │   ├── TaskSearch.jsx
+│   │   ├── TaskStats.jsx
+│   │   └── ThemeToggle.jsx
+│   ├── contexts/
+│   │   └── AuthContext.jsx      # Authentication context
+│   ├── services/
+│   │   └── taskAPI.js           # API service layer
+│   ├── App.jsx                      # Main app component
+│   ├── App.css                      # Enhanced styling
+│   ├── index.css                    # Global styles
+│   └── main.jsx
+├── index.html                     # Frontend HTML template
+├── package.json                   # Frontend dependencies
+├── vite.config.js                 # Vite configuration
+├── README.md                      # Project documentation
+└── AUTHENTICATION_GUIDE.md        # Authentication setup guide
 ```
 
 ## 🎨 Usage Guide
