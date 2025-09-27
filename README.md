@@ -1,4 +1,4 @@
-# Task Manager Pro
+# <img src="https://img.icons8.com/fluency/48/task.png" alt="Task Manager" width="32" height="32"/> Task Manager Pro
 
 A modern, feature-rich task management application built with React and Vite. This application provides an intuitive interface for managing your daily tasks with advanced features like search, filtering, statistics, and theme customization.
 
