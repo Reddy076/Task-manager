@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import AuthForm from './components/AuthForm';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
 import TaskFilter from './components/TaskFilter';
@@ -6,9 +8,11 @@ import TaskSearch from './components/TaskSearch';
 import TaskStats from './components/TaskStats';
 import ThemeToggle from './components/ThemeToggle';
 import NotificationSystem from './components/NotificationSystem';
+import TaskAPI from './services/taskAPI';
 import './App.css';
 
-function App() {
+const TaskManager = () => {
+  const { user, logout, loading: authLoading } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(false);
@@ -21,96 +25,88 @@ function App() {
     tag: 'all'
   });
 
-  // Load tasks on component mount
+  // Load tasks when user is authenticated
   useEffect(() => {
-    loadTasks();
-  }, []);
+    if (user) {
+      loadTasks();
+    }
+  }, [user]);
 
-  // Mock API service - in a real app, this would be actual API calls
+  // Load tasks from backend API
   const loadTasks = async () => {
     setLoading(true);
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Load from localStorage for persistence
-      const savedTasks = localStorage.getItem('tasks');
-      if (savedTasks) {
-        setTasks(JSON.parse(savedTasks));
-      }
+      const tasksData = await TaskAPI.getTasks();
+      setTasks(tasksData);
     } catch (err) {
+      console.error('Load tasks error:', err);
       setError('Failed to load tasks');
     } finally {
       setLoading(false);
     }
   };
 
-  // Save tasks to localStorage (simulating API)
-  const saveTasks = (updatedTasks) => {
-    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
-  };
-
-  // Add new task with category and tags
+  // Add new task with backend API
   const addTask = async (taskData) => {
     setLoading(true);
     try {
-      const newTask = {
-        id: Date.now(),
+      const newTask = await TaskAPI.createTask({
         ...taskData,
-        completed: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
         category: taskData.category || 'personal',
-        tags: taskData.tags || []
-      };
+        tags: typeof taskData.tags === 'string' 
+          ? taskData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+          : taskData.tags || []
+      });
       
-      const updatedTasks = [...tasks, newTask];
-      setTasks(updatedTasks);
-      saveTasks(updatedTasks);
+      setTasks(prev => [...prev, newTask]);
     } catch (err) {
+      console.error('Add task error:', err);
       setError('Failed to add task');
     } finally {
       setLoading(false);
     }
   };
 
-  // Update task
+  // Update task with backend API
   const updateTask = async (id, updates) => {
     setLoading(true);
     try {
-      const updatedTasks = tasks.map(task =>
-        task.id === id 
-          ? { ...task, ...updates, updatedAt: new Date().toISOString() }
-          : task
-      );
-      setTasks(updatedTasks);
-      saveTasks(updatedTasks);
+      const updatedTask = await TaskAPI.updateTask(id, updates);
+      setTasks(prev => prev.map(task => 
+        task._id === id ? updatedTask : task
+      ));
     } catch (err) {
+      console.error('Update task error:', err);
       setError('Failed to update task');
     } finally {
       setLoading(false);
     }
   };
 
-  // Delete task
+  // Delete task with backend API
   const deleteTask = async (id) => {
     setLoading(true);
     try {
-      const updatedTasks = tasks.filter(task => task.id !== id);
-      setTasks(updatedTasks);
-      saveTasks(updatedTasks);
+      await TaskAPI.deleteTask(id);
+      setTasks(prev => prev.filter(task => task._id !== id));
     } catch (err) {
+      console.error('Delete task error:', err);
       setError('Failed to delete task');
     } finally {
       setLoading(false);
     }
   };
 
-  // Toggle task completion
-  const toggleTask = (id) => {
-    const task = tasks.find(t => t.id === id);
-    if (task) {
-      updateTask(id, { completed: !task.completed });
+  // Toggle task completion with backend API
+  const toggleTask = async (id) => {
+    try {
+      const updatedTask = await TaskAPI.toggleTask(id);
+      setTasks(prev => prev.map(task => 
+        task._id === id ? updatedTask : task
+      ));
+    } catch (err) {
+      console.error('Toggle task error:', err);
+      setError('Failed to update task');
     }
   };
 
@@ -146,46 +142,55 @@ function App() {
     const matchesCategory = advancedFilters.category === 'all' || task.category === advancedFilters.category;
     const matchesPriority = advancedFilters.priority === 'all' || task.priority === advancedFilters.priority;
     
-    // Due date filter
-    let matchesDueDate = true;
-    if (advancedFilters.dueDate !== 'all' && task.dueDate) {
-      const taskDate = new Date(task.dueDate);
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      
-      switch (advancedFilters.dueDate) {
-        case 'today':
-          matchesDueDate = taskDate.toDateString() === today.toDateString();
-          break;
-        case 'tomorrow':
-          matchesDueDate = taskDate.toDateString() === tomorrow.toDateString();
-          break;
-        case 'week':
-          const weekFromNow = new Date(today);
-          weekFromNow.setDate(weekFromNow.getDate() + 7);
-          matchesDueDate = taskDate <= weekFromNow && taskDate >= today;
-          break;
-        case 'overdue':
-          matchesDueDate = taskDate < today && !task.completed;
-          break;
-        default:
-          matchesDueDate = true;
-      }
-    }
-
-    return matchesBasicFilter && matchesSearch && matchesCategory && matchesPriority && matchesDueDate;
+    return matchesBasicFilter && matchesSearch && matchesCategory && matchesPriority;
   });
 
   // Clear error message
   const clearError = () => setError(null);
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    setTasks([]);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="app">
+        <div className="loading-screen">
+          <div className="loading-spinner">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="app">
+        <header className="app-header">
+          <div className="header-controls">
+            <div></div>
+            <ThemeToggle />
+          </div>
+          <h1>Task Manager Pro</h1>
+          <p>// Stay organized and productive with style 🔥</p>
+        </header>
+        <AuthForm />
+      </div>
+    );
+  }
 
   return (
     <div className="app">
       <NotificationSystem tasks={tasks} />
       <header className="app-header">
         <div className="header-controls">
-          <div></div>
+          <div className="user-info">
+            <span>Welcome, {user.firstName}!</span>
+            <button onClick={handleLogout} className="logout-btn">
+              Logout
+            </button>
+          </div>
           <ThemeToggle />
         </div>
         <h1>Task Manager Pro</h1>
@@ -246,6 +251,14 @@ function App() {
         )}
       </main>
     </div>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <TaskManager />
+    </AuthProvider>
   );
 }
 

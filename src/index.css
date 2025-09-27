@@ -24,6 +24,7 @@
   --accent-red: #dc2626;
   --accent-red-light: #ef4444;
   --accent-red-dark: #991b1b;
+  --accent-red-rgb: 220, 38, 38;
   
   /* Background colors for theme switching */
   --body-bg: #0a0a0a;
