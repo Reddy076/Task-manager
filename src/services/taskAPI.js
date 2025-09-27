@@ -1,135 +1,191 @@
-// Mock API service for task management
-// In a real application, these would be actual HTTP requests to a backend API
+// Real API service for task management
+// Connects to Express.js backend with authentication
 
-const API_BASE_URL = 'https://jsonplaceholder.typicode.com'; // Mock API endpoint
-const STORAGE_KEY = 'task-manager-tasks';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 class TaskAPI {
-  // Simulate network delay
-  delay(ms = 500) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  constructor() {
+    this.token = localStorage.getItem('accessToken');
   }
 
-  // Get all tasks
-  async getTasks() {
-    await this.delay();
+  // Get authorization headers
+  getAuthHeaders() {
+    const headers = {
+      'Content-Type': 'application/json'
+    };
     
-    try {
-      // In a real app, this would be: fetch(`${API_BASE_URL}/tasks`)
-      const tasks = localStorage.getItem(STORAGE_KEY);
-      return tasks ? JSON.parse(tasks) : [];
-    } catch (error) {
-      throw new Error('Failed to fetch tasks');
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
+    
+    return headers;
   }
 
-  // Create a new task
+  // Handle API response
+  async handleResponse(response) {
+    const data = await response.json();
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Token expired, clear it
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+        window.location.reload();
+        throw new Error('Authentication required');
+      }
+      throw new Error(data.message || 'API request failed');
+    }
+    
+    return data;
+  }
+
+  // Task methods
+  async getTasks(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    const url = `${API_BASE_URL}/tasks${queryString ? `?${queryString}` : ''}`;
+    
+    const response = await fetch(url, {
+      headers: this.getAuthHeaders(),
+      credentials: 'include'
+    });
+    
+    const data = await this.handleResponse(response);
+    return data.data.tasks;
+  }
+
   async createTask(taskData) {
-    await this.delay();
+    const response = await fetch(`${API_BASE_URL}/tasks`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(taskData)
+    });
     
-    try {
-      const tasks = await this.getTasks();
-      const newTask = {
-        id: Date.now(),
-        ...taskData,
-        completed: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      const updatedTasks = [...tasks, newTask];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTasks));
-      
-      return newTask;
-    } catch (error) {
-      throw new Error('Failed to create task');
-    }
+    const data = await this.handleResponse(response);
+    return data.data.task;
   }
 
-  // Update an existing task
   async updateTask(id, updates) {
-    await this.delay();
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(updates)
+    });
     
-    try {
-      const tasks = await this.getTasks();
-      const taskIndex = tasks.findIndex(task => task.id === id);
-      
-      if (taskIndex === -1) {
-        throw new Error('Task not found');
-      }
-      
-      const updatedTask = {
-        ...tasks[taskIndex],
-        ...updates,
-        updatedAt: new Date().toISOString()
-      };
-      
-      tasks[taskIndex] = updatedTask;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-      
-      return updatedTask;
-    } catch (error) {
-      throw new Error('Failed to update task');
-    }
+    const data = await this.handleResponse(response);
+    return data.data.task;
   }
 
-  // Delete a task
   async deleteTask(id) {
-    await this.delay();
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+      credentials: 'include'
+    });
     
-    try {
-      const tasks = await this.getTasks();
-      const filteredTasks = tasks.filter(task => task.id !== id);
-      
-      if (filteredTasks.length === tasks.length) {
-        throw new Error('Task not found');
-      }
-      
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredTasks));
-      return true;
-    } catch (error) {
-      throw new Error('Failed to delete task');
-    }
+    await this.handleResponse(response);
+    return true;
   }
 
-  // Toggle task completion status
   async toggleTask(id) {
-    await this.delay();
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}/toggle`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+      credentials: 'include'
+    });
     
-    try {
-      const tasks = await this.getTasks();
-      const task = tasks.find(t => t.id === id);
-      
-      if (!task) {
-        throw new Error('Task not found');
-      }
-      
-      return await this.updateTask(id, { completed: !task.completed });
-    } catch (error) {
-      throw new Error('Failed to toggle task');
+    const data = await this.handleResponse(response);
+    return data.data.task;
+  }
+
+  async getTaskStats() {
+    const response = await fetch(`${API_BASE_URL}/tasks/stats`, {
+      headers: this.getAuthHeaders(),
+      credentials: 'include'
+    });
+    
+    const data = await this.handleResponse(response);
+    return data.data.overview;
+  }
+
+  // Bulk operations
+  async bulkOperation(action, taskIds) {
+    const response = await fetch(`${API_BASE_URL}/tasks/bulk`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify({ action, taskIds })
+    });
+    
+    return await this.handleResponse(response);
+  }
+
+  // Export/Import methods
+  async exportTasks(format = 'json') {
+    const response = await fetch(`${API_BASE_URL}/export/${format}`, {
+      headers: this.getAuthHeaders(),
+      credentials: 'include'
+    });
+    
+    if (format === 'csv') {
+      return await response.text();
+    } else {
+      return await response.json();
     }
   }
 
-  // Get task statistics
-  async getTaskStats() {
-    await this.delay();
+  async importTasks(tasks, mergeStrategy = 'skip') {
+    const response = await fetch(`${API_BASE_URL}/export/import`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify({ tasks, mergeStrategy })
+    });
     
-    try {
-      const tasks = await this.getTasks();
-      
-      return {
-        total: tasks.length,
-        completed: tasks.filter(t => t.completed).length,
-        active: tasks.filter(t => !t.completed).length,
-        overdue: tasks.filter(t => 
-          t.dueDate && 
-          new Date(t.dueDate) < new Date() && 
-          !t.completed
-        ).length
-      };
-    } catch (error) {
-      throw new Error('Failed to get task statistics');
-    }
+    return await this.handleResponse(response);
+  }
+
+  // Subtask methods
+  async addSubtask(taskId, subtaskData) {
+    const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/subtasks`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(subtaskData)
+    });
+    
+    const data = await this.handleResponse(response);
+    return data.data.task;
+  }
+
+  async updateSubtask(taskId, subtaskId, updates) {
+    const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/subtasks/${subtaskId}`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(updates)
+    });
+    
+    const data = await this.handleResponse(response);
+    return data.data.task;
+  }
+
+  async deleteSubtask(taskId, subtaskId) {
+    const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/subtasks/${subtaskId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+      credentials: 'include'
+    });
+    
+    const data = await this.handleResponse(response);
+    return data.data.task;
+  }
+
+  // Check if user is authenticated
+  isAuthenticated() {
+    return !!this.token;
   }
 }
 
