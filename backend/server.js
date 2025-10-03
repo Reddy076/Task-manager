@@ -11,19 +11,16 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Add middleware to log all requests at the very beginning
-app.use((req, res, next) => {
-  console.log(`=== SERVER REQUEST DEBUG ===`);
-  console.log(`Method: ${req.method}`);
-  console.log(`URL: ${req.url}`);
-  console.log(`Headers:`, req.headers);
-  next();
-});
-
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:3001'],
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'http://localhost:3001',
+    'https://task-manager-frontend.vercel.app',
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+    'https://*.vercel.app'
+  ].filter(Boolean),
   credentials: true
 }));
 
@@ -41,6 +38,15 @@ app.use(cookieParser());
 
 // Logging middleware
 app.use(morgan('combined'));
+
+// Add middleware to log all requests at the very beginning
+app.use((req, res, next) => {
+  console.log(`=== SERVER REQUEST DEBUG ===`);
+  console.log(`Method: ${req.method}`);
+  console.log(`URL: ${req.url}`);
+  console.log(`Headers:`, req.headers);
+  next();
+});
 
 // Add another middleware to log request body after parsing
 app.use((req, res, next) => {
@@ -103,7 +109,7 @@ app.use((req, res) => {
 // Start server
 const startServer = async () => {
   await connectDB();
-  const server = app.listen(PORT, () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   });
@@ -119,6 +125,14 @@ const startServer = async () => {
   process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
     process.exit(1);
+  });
+  
+  // Handle graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      console.log('Process terminated');
+    });
   });
 };
 

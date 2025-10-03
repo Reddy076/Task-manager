@@ -1,7 +1,9 @@
 // Real API service for task management
 // Connects to Express.js backend with authentication
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.REACT_APP_API_URL || 'https://task-manager-backend.vercel.app/api'
+  : (import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
 
 class TaskAPI {
   constructor() {
