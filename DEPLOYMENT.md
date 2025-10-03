@@ -29,7 +29,9 @@ This document explains how to deploy the Task Manager application to various pla
 #### Step 1: Set up MongoDB Atlas
 1. Go to [cloud.mongodb.com](https://cloud.mongodb.com) and create an account
 2. Create a new cluster (free tier is fine for development)
-3. Create a database user with a secure password
+3. Create a database user with a secure password:
+   - Username: `taskmanageruser`
+   - Password: `zk1e9yCKlGoqdXTj`
 4. Whitelist IP addresses:
    - Click "Network Access" in the left sidebar
    - Click "Add IP Address"
@@ -39,7 +41,9 @@ This document explains how to deploy the Task Manager application to various pla
    - Click "Database" in the left sidebar
    - Click "Connect" on your cluster
    - Choose "Connect your application"
-   - Copy the connection string and replace `<password>` with your actual password
+   - Copy the connection string and replace the username and password placeholders:
+     - Replace `<username>` with `taskmanageruser`
+     - Replace `<password>` with `zk1e9yCKlGoqdXTj`
 
 #### Step 2: Create Render Account and Deploy
 1. Go to [render.com](https://render.com) and sign up or log in
@@ -56,7 +60,7 @@ This document explains how to deploy the Task Manager application to various pla
    - **Build Command**: `npm install`
    - **Start Command**: `npm start`
 5. Click "Advanced" to add environment variables:
-   - `MONGODB_URI`: Your MongoDB Atlas connection string
+   - `MONGODB_URI`: Your MongoDB Atlas connection string with credentials
    - `JWT_SECRET`: A secure random string (at least 32 characters)
    - `NODE_ENV`: `production`
    - [PORT](file://c:\Users\mulac\Downloads\Task-manager-main\Task-manager-main\backend\server.js#L11-L11): `8080`
@@ -80,7 +84,9 @@ This document explains how to deploy the Task Manager application to various pla
 
 ### Setup Steps
 1. Create a new cluster
-2. Create a database user
+2. Create a database user:
+   - Username: `taskmanageruser`
+   - Password: `zk1e9yCKlGoqdXTj`
 3. Whitelist IP addresses (0.0.0.0/0 for development)
 4. Get the connection string and update `MONGODB_URI` environment variable
 
@@ -93,7 +99,7 @@ REACT_APP_API_URL=https://your-backend-url.onrender.com/api
 
 ### Backend (Render)
 ```
-MONGODB_URI=your_mongodb_atlas_connection_string
+MONGODB_URI=mongodb+srv://taskmanageruser:zk1e9yCKlGoqdXTj@your-cluster.mongodb.net/taskmanager
 JWT_SECRET=your_secure_jwt_secret_key_here
 NODE_ENV=production
 PORT=8080
