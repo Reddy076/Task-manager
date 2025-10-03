@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
+    "start:render": "node start.js",
     "dev": "nodemon server.js",
     "setup-db": "node setup-db.js",
     "setup-mongodb": "node setup-mongodb.js",
