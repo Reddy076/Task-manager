@@ -19,7 +19,8 @@ app.use(cors({
     'http://localhost:3001',
     'https://task-manager-frontend.vercel.app',
     process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
-    'https://*.vercel.app'
+    'https://*.vercel.app',
+    'https://*.onrender.com'
   ].filter(Boolean),
   credentials: true
 }));
@@ -130,6 +131,13 @@ const startServer = async () => {
   // Handle graceful shutdown
   process.on('SIGTERM', () => {
     console.log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      console.log('Process terminated');
+    });
+  });
+  
+  process.on('SIGINT', () => {
+    console.log('SIGINT received, shutting down gracefully');
     server.close(() => {
       console.log('Process terminated');
     });
