@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 const AuthForm = () => {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -13,40 +13,6 @@ const AuthForm = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isRateLimited, setIsRateLimited] = useState(false);
-  const [rateLimitEndTime, setRateLimitEndTime] = useState(null);
-  const [countdown, setCountdown] = useState(0);
-
-  // Auto-dismiss non-rate-limit errors after 2 seconds
-  useEffect(() => {
-    if (error && !isRateLimited) {
-      const timer = setTimeout(() => {
-        setError('');
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [error, isRateLimited]);
-
-  // Handle rate limit countdown
-  useEffect(() => {
-    if (isRateLimited && rateLimitEndTime) {
-      const updateCountdown = () => {
-        const now = Date.now();
-        const remaining = Math.max(0, Math.ceil((rateLimitEndTime - now) / 1000));
-        setCountdown(remaining);
-        
-        if (remaining <= 0) {
-          setIsRateLimited(false);
-          setRateLimitEndTime(null);
-          setError('');
-        }
-      };
-      
-      updateCountdown();
-      const interval = setInterval(updateCountdown, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [isRateLimited, rateLimitEndTime]);
 
   const handleChange = (e) => {
     setFormData({
@@ -61,46 +27,42 @@ const AuthForm = () => {
     setError('');
 
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const body = isLogin 
-        ? { email: formData.email, password: formData.password }
-        : formData;
-
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(body)
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('accessToken', data.data.accessToken);
-        localStorage.setItem('user', JSON.stringify(data.data.user));
-        login(data.data.user);
-      } else {
-        const errorMessage = data.message || 'Authentication failed';
-        setError(errorMessage);
+      if (isLogin) {
+        // For login, we check if user exists in localStorage
+        const users = JSON.parse(localStorage.getItem('taskManager_users') || '[]');
+        const user = users.find(u => u.email === formData.email && u.password === formData.password);
         
-        // Check if it's a rate limiting error
-        if (errorMessage.toLowerCase().includes('too many') || 
-            errorMessage.toLowerCase().includes('rate limit') ||
-            response.status === 429) {
-          setIsRateLimited(true);
-          // Set rate limit end time (15 minutes from now for login, 1 hour for registration)
-          const rateLimitDuration = isLogin ? 15 * 60 * 1000 : 60 * 60 * 1000;
-          setRateLimitEndTime(Date.now() + rateLimitDuration);
+        if (user) {
+          login(user);
         } else {
-          setIsRateLimited(false);
-          setRateLimitEndTime(null);
+          setError('Invalid email or password');
         }
+      } else {
+        // For registration, we create a new user
+        let users = JSON.parse(localStorage.getItem('taskManager_users') || '[]');
+        
+        // Check if user already exists
+        const existingUser = users.find(u => u.email === formData.email || u.username === formData.username);
+        if (existingUser) {
+          setError('User with this email or username already exists');
+          setLoading(false);
+          return;
+        }
+        
+        // Create new user
+        const newUser = {
+          id: Date.now().toString(),
+          ...formData,
+          createdAt: new Date().toISOString()
+        };
+        
+        users.push(newUser);
+        localStorage.setItem('taskManager_users', JSON.stringify(users));
+        login(newUser); // Automatically log in the new user
       }
     } catch (err) {
       console.error('Auth error:', err);
-      setError('Connection failed. Make sure the backend is running.');
+      setError('Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -118,6 +80,36 @@ const AuthForm = () => {
     });
   };
 
+  // Function to set up demo user
+  const setupDemoUser = () => {
+    const demoUser = {
+      id: 'demo_user_id',
+      email: 'demo@taskmanager.com',
+      password: 'demo123',
+      username: 'demo',
+      firstName: 'Demo',
+      lastName: 'User',
+      createdAt: new Date().toISOString()
+    };
+    
+    // Check if demo user already exists
+    let users = JSON.parse(localStorage.getItem('taskManager_users') || '[]');
+    const existingDemoUser = users.find(u => u.email === 'demo@taskmanager.com');
+    
+    if (!existingDemoUser) {
+      users.push(demoUser);
+      localStorage.setItem('taskManager_users', JSON.stringify(users));
+    }
+    
+    setFormData({
+      email: 'demo@taskmanager.com',
+      password: 'demo123',
+      username: 'demo',
+      firstName: 'Demo',
+      lastName: 'User'
+    });
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-form">
@@ -130,17 +122,8 @@ const AuthForm = () => {
         </p>
 
         {error && (
-          <div className={`error-message ${isRateLimited ? 'rate-limit-error' : ''}`}>
-            {isRateLimited ? (
-              <div>
-                <div className="error-title">🚫 Rate Limited</div>
-                <div className="error-text">
-                  Too many attempts. Try again in: <strong>{Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}</strong>
-                </div>
-              </div>
-            ) : (
-              error
-            )}
+          <div className="error-message">
+            {error}
           </div>
         )}
 
@@ -231,6 +214,13 @@ const AuthForm = () => {
           <p className="demo-info">🚀 Demo Credentials:</p>
           <p><strong>Email:</strong> demo@taskmanager.com</p>
           <p><strong>Password:</strong> demo123</p>
+          <button 
+            type="button" 
+            className="btn btn-secondary"
+            onClick={setupDemoUser}
+          >
+            Fill Demo Credentials
+          </button>
         </div>
       </div>
     </div>

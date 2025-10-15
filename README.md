@@ -1,23 +1,21 @@
-# 📋 Task Manager Pro
+# 📋 Task Manager Pro (LocalStorage Edition)
 
-A modern, full-stack task management application built with React, Express.js, and MongoDB. This application provides an intuitive interface for managing your daily tasks with advanced features like user authentication, real-time database storage, smart filtering, and beautiful modern UI design.
+A modern, client-side task management application built with React. This application provides an intuitive interface for managing your daily tasks with advanced features like user authentication, localStorage-based data storage, smart filtering, and beautiful modern UI design.
 
 ## ✨ Features
 
 ### 🔐 Authentication & Security
-- **User Registration & Login**: Secure JWT-based authentication system
-- **Rate Limiting**: Protection against brute force attacks (5 attempts per 15 minutes)
-- **Auto-dismissing Error Messages**: Smart error handling with countdown timers
-- **Session Management**: Automatic token refresh and secure logout
+- **User Registration & Login**: Client-side authentication with localStorage
+- **Session Management**: Automatic login persistence
 
 ### 📝 Task Management
 - **Full CRUD Operations**: Create, edit, delete, and mark tasks as complete
-- **Real-time Database Storage**: MongoDB integration with automatic fallback to file storage
+- **LocalStorage Storage**: Data persistence using browser localStorage
 - **Advanced Search**: Real-time search functionality across titles and descriptions
 - **Smart Filtering**: Filter by status, priority, category, and due date
 - **Task Categories**: Organize tasks with work, personal, shopping, health categories
 - **Priority Levels**: High, medium, and low priority with visual indicators
-- **Due Dates**: Set and track task deadlines with overdue notifications
+- **Due Dates**: Set and track task deadlines
 
 ### 🎨 Modern UI & UX
 - **Glassmorphism Design**: Beautiful glass-like interface with backdrop blur effects
@@ -39,26 +37,17 @@ A modern, full-stack task management application built with React, Express.js, a
 - **Vite** - Lightning-fast build tool and development server
 - **CSS3** - Custom styling with glassmorphism and modern design principles
 - **Context API** - State management for authentication and app data
-
-### Backend
-- **Express.js** - Fast and minimalist web framework
-- **MongoDB** - NoSQL database for flexible data storage
-- **Mongoose** - Elegant MongoDB object modeling
-- **JWT** - JSON Web Tokens for secure authentication
-- **bcrypt** - Password hashing for security
-- **Rate Limiting** - Express rate limit for API protection
+- **LocalStorage** - Client-side data persistence
 
 ### Development Tools
 - **Hot Module Replacement** - Real-time development updates
 - **ESLint & Prettier** - Code quality and formatting
-- **CORS** - Cross-origin resource sharing configuration
 
 ## 📎 Quick Start
 
 ### Prerequisites
 - **Node.js** (version 14 or higher)
 - **npm** or **yarn**
-- **MongoDB** (local installation or MongoDB Atlas account)
 
 ### 🚀 Installation
 
@@ -68,38 +57,56 @@ git clone https://github.com/Reddy076/Task-manager.git
 cd Task-manager
 ```
 
-2. **Set up the Backend:**
+2. **Install dependencies:**
 ```bash
-cd backend
 npm install
-
-# Set up MongoDB (choose one option):
-# Option 1: Local MongoDB
-npm run setup-mongodb
-
-# Option 2: Use MongoDB Atlas
-# Create .env file and add your MongoDB Atlas connection string
-echo "MONGODB_URI=your_mongodb_atlas_connection_string" > .env
-
-# Start the backend server
-npm start
 ```
 
-3. **Set up the Frontend (open new terminal):**
+3. **Start the development server:**
 ```bash
-# From the root directory
-npm install
 npm run dev
 ```
 
 4. **Access the application:**
-   - **Frontend**: http://localhost:3001
-   - **Backend API**: http://localhost:5000
+   - **Frontend**: http://localhost:3004 (or the port shown in your terminal)
 
-### 🎨 Demo Credentials
-For quick testing, use these demo credentials:
-- **Email**: demo@taskmanager.com
-- **Password**: demo123
+### 🎨 Using the Application
+
+#### Option 1: Use Demo Account (Easiest)
+1. Open the application in your browser
+2. On the login page, click the "Fill Demo Credentials" button
+3. Click "Sign In"
+4. You're now logged in with the demo account!
+
+#### Option 2: Manual Login
+1. Open the application in your browser
+2. Enter these credentials:
+   - **Email**: demo@taskmanager.com
+   - **Password**: demo123
+3. Click "Sign In"
+
+#### Option 3: Create Your Own Account
+1. Open the application in your browser
+2. Click "Create Account"
+3. Fill in your details:
+   - First Name
+   - Last Name
+   - Username
+   - Email
+   - Password (minimum 6 characters)
+4. Click "Create Account"
+5. You'll be automatically logged in
+
+### 📝 After Logging In
+Once logged in, you can:
+- Create new tasks using the form at the top
+- Mark tasks as complete by clicking the checkbox
+- Edit tasks by clicking on them
+- Delete tasks using the delete button
+- Filter tasks by status (All, Active, Completed)
+- Search for tasks using the search bar
+- View statistics about your tasks
+- Switch between light and dark themes
 
 ## 🏗️ Build for Production
 
@@ -115,22 +122,6 @@ The build artifacts will be stored in the `dist/` directory.
 
 ```
 task-manager/                      # Unified Full-Stack Repository
-├── backend/                       # Express.js Backend
-│   ├── models/
-│   │   ├── User.js              # User authentication model
-│   │   └── Task.js              # Task management model
-│   ├── routes/
-│   │   ├── auth.js              # Authentication routes
-│   │   ├── tasks.js             # Task CRUD routes
-│   │   └── users.js             # User management routes
-│   ├── middleware/
-│   │   └── auth.js              # JWT authentication middleware
-│   ├── utils/
-│   │   ├── dbConnection.js      # Database connection handler
-│   │   └── fileStorage.js       # File storage fallback
-│   ├── server.js                     # Main server file
-│   └── package.json                  # Backend dependencies
-│
 ├── src/                           # React Frontend
 │   ├── components/
 │   │   ├── AuthForm.jsx         # Login/Registration form
@@ -145,7 +136,7 @@ task-manager/                      # Unified Full-Stack Repository
 │   ├── contexts/
 │   │   └── AuthContext.jsx      # Authentication context
 │   ├── services/
-│   │   └── taskAPI.js           # API service layer
+│   │   └── taskAPI.js           # LocalStorage service layer
 │   ├── App.jsx                      # Main app component
 │   ├── App.css                      # Enhanced styling
 │   ├── index.css                    # Global styles
@@ -153,8 +144,7 @@ task-manager/                      # Unified Full-Stack Repository
 ├── index.html                     # Frontend HTML template
 ├── package.json                   # Frontend dependencies
 ├── vite.config.js                 # Vite configuration
-├── README.md                      # Project documentation
-└── AUTHENTICATION_GUIDE.md        # Authentication setup guide
+└── README.md                      # Project documentation
 ```
 
 ## 🎨 Usage Guide
@@ -172,17 +162,11 @@ task-manager/                      # Unified Full-Stack Repository
 - **Search & Filter**: Find specific tasks using the search bar and filters
 
 ### 📈 Features in Action
-- **Real-time Updates**: All changes are instantly saved to the database
+- **Real-time Updates**: All changes are instantly saved to localStorage
 - **Smart Notifications**: Get alerts for overdue tasks and important updates
 - **Theme Switching**: Toggle between dark and light modes
 - **Responsive Design**: Works perfectly on all devices
-- **Session Management**: Stay logged in with automatic token refresh
-
-### 🔒 Security Features
-- **Rate Limiting**: Protection against brute force attacks
-- **Auto-logout**: Secure session management
-- **Password Encryption**: bcrypt hashing for secure password storage
-- **JWT Tokens**: Secure authentication with automatic refresh
+- **Session Management**: Stay logged in with automatic session persistence
 
 ## 🤝 Contributing
 
@@ -201,32 +185,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 This project is ready for deployment on platforms like:
 - **Vercel** (Recommended for React apps)
 - **Netlify** (Great for static deployments)
-- **Railway** (Perfect for full-stack apps with database)
-- **Heroku** (Traditional cloud platform)
+- **GitHub Pages** (Free static hosting)
 
-### Backend Deployment Notes:
-- Set environment variables for MongoDB connection
-- Configure CORS for your production domain
-- Set NODE_ENV to "production"
-
-### Frontend Deployment Notes:
-- Update API URLs to production backend
-- Build the project with `npm run build`
-- Deploy the `dist` folder
+Simply build the project with `npm run build` and deploy the `dist` folder.
 
 ## 📞 Support
 
 If you have any questions or need help with the project, please open an issue on GitHub.
 
-## 🎯 Roadmap
+## 🎯 Features Removed in This Edition
 
-- [ ] Mobile app version
-- [ ] Team collaboration features
-- [ ] Advanced analytics dashboard
-- [ ] File attachments for tasks
-- [ ] Calendar integration
-- [ ] Email notifications
+In this localStorage-only edition, the following backend-dependent features have been removed:
+- Real-time database storage (MongoDB)
+- User account synchronization across devices
+- Server-side authentication
+- API rate limiting
+- Backend-based security features
+
+Data is now stored locally in your browser's localStorage and will not be synchronized across devices or browsers.
 
 ---
 
-**Made with ❤️ using React, Express.js, and MongoDB**
+**Made with ❤️ using React and localStorage**

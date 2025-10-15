@@ -15,74 +15,85 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem('accessToken');
-    const savedUser = localStorage.getItem('user');
+    // Initialize users storage if it doesn't exist
+    if (!localStorage.getItem('taskManager_users')) {
+      localStorage.setItem('taskManager_users', JSON.stringify([]));
+    }
     
-    if (token && savedUser) {
+    // Create demo user if it doesn't exist
+    let users = JSON.parse(localStorage.getItem('taskManager_users') || '[]');
+    const existingDemoUser = users.find(u => u.email === 'demo@taskmanager.com');
+    
+    if (!existingDemoUser) {
+      const demoUser = {
+        id: 'demo_user_id',
+        email: 'demo@taskmanager.com',
+        password: 'demo123',
+        username: 'demo',
+        firstName: 'Demo',
+        lastName: 'User',
+        createdAt: new Date().toISOString()
+      };
+      
+      users.push(demoUser);
+      localStorage.setItem('taskManager_users', JSON.stringify(users));
+    }
+    
+    // Check if user is already logged in
+    const savedUser = localStorage.getItem('taskManager_user');
+    
+    if (savedUser) {
       try {
         setUser(JSON.parse(savedUser));
-        verifyToken(token);
       } catch (error) {
         console.error('Error parsing saved user:', error);
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('user');
-        setLoading(false);
+        localStorage.removeItem('taskManager_user');
       }
-    } else {
-      setLoading(false);
     }
+    setLoading(false);
   }, []);
 
-  const verifyToken = async (token) => {
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.data.user);
-      } else {
-        logout();
-      }
-    } catch (error) {
-      console.error('Token verification failed:', error);
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const login = (userData) => {
+    // Save the user data to localStorage
+    localStorage.setItem('taskManager_user', JSON.stringify(userData));
     setUser(userData);
     setLoading(false);
   };
 
-  const logout = async () => {
-    try {
-      await fetch('http://localhost:5000/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-        credentials: 'include'
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('user');
-      setUser(null);
+  const register = (userData) => {
+    // For registration, we create a new user and log them in
+    let users = JSON.parse(localStorage.getItem('taskManager_users') || '[]');
+    
+    // Check if user already exists
+    const existingUser = users.find(u => u.email === userData.email || u.username === userData.username);
+    if (existingUser) {
+      throw new Error('User with this email or username already exists');
     }
+    
+    // Create new user
+    const newUser = {
+      id: Date.now().toString(),
+      ...userData,
+      createdAt: new Date().toISOString()
+    };
+    
+    users.push(newUser);
+    localStorage.setItem('taskManager_users', JSON.stringify(users));
+    
+    // Log in the new user
+    login(newUser);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('taskManager_user');
+    localStorage.removeItem('taskManager_tasks'); // Optionally clear tasks on logout
+    setUser(null);
   };
 
   const value = {
     user,
     login,
+    register,
     logout,
     loading,
     isAuthenticated: !!user

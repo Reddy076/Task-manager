@@ -32,7 +32,7 @@ const TaskManager = () => {
     }
   }, [user]);
 
-  // Load tasks from backend API
+  // Load tasks from localStorage
   const loadTasks = async () => {
     setLoading(true);
     try {
@@ -46,7 +46,7 @@ const TaskManager = () => {
     }
   };
 
-  // Add new task with backend API
+  // Add new task with localStorage
   const addTask = async (taskData) => {
     setLoading(true);
     try {
@@ -67,13 +67,13 @@ const TaskManager = () => {
     }
   };
 
-  // Update task with backend API
+  // Update task with localStorage
   const updateTask = async (id, updates) => {
     setLoading(true);
     try {
       const updatedTask = await TaskAPI.updateTask(id, updates);
       setTasks(prev => prev.map(task => 
-        task._id === id ? updatedTask : task
+        task.id === id ? updatedTask : task
       ));
     } catch (err) {
       console.error('Update task error:', err);
@@ -83,12 +83,12 @@ const TaskManager = () => {
     }
   };
 
-  // Delete task with backend API
+  // Delete task with localStorage
   const deleteTask = async (id) => {
     setLoading(true);
     try {
       await TaskAPI.deleteTask(id);
-      setTasks(prev => prev.filter(task => task._id !== id));
+      setTasks(prev => prev.filter(task => task.id !== id));
     } catch (err) {
       console.error('Delete task error:', err);
       setError('Failed to delete task');
@@ -97,12 +97,12 @@ const TaskManager = () => {
     }
   };
 
-  // Toggle task completion with backend API
+  // Toggle task completion with localStorage
   const toggleTask = async (id) => {
     try {
       const updatedTask = await TaskAPI.toggleTask(id);
       setTasks(prev => prev.map(task => 
-        task._id === id ? updatedTask : task
+        task.id === id ? updatedTask : task
       ));
     } catch (err) {
       console.error('Toggle task error:', err);
@@ -129,14 +129,14 @@ const TaskManager = () => {
       case 'completed':
         matchesBasicFilter = task.completed;
         break;
-      default:
+ default:
         matchesBasicFilter = true;
     }
 
     // Search query filter
     const matchesSearch = !searchQuery || 
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
     // Advanced filters
     const matchesCategory = advancedFilters.category === 'all' || task.category === advancedFilters.category;

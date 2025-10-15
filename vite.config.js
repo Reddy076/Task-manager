@@ -22,13 +22,5 @@ export default defineConfig({
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
-  },
-  // Add proxy for development
-  proxy: {
-    '/api': {
-      target: 'http://localhost:5000',
-      changeOrigin: true,
-      secure: false
-    }
   }
 })
