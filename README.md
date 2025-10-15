@@ -2,6 +2,14 @@
 
 A modern, client-side task management application built with React. This application provides an intuitive interface for managing your daily tasks with advanced features like user authentication, localStorage-based data storage, smart filtering, and beautiful modern UI design.
 
+## ✨ Live Demo
+
+**🚀 Check out the live demo: [https://task-manager-omega-rust.vercel.app/](https://task-manager-omega-rust.vercel.app/)**
+
+Use the demo credentials to try the application:
+- **Email**: demo@taskmanager.com
+- **Password**: demo123
+
 ## ✨ Features
 
 ### 🔐 Authentication & Security
@@ -68,7 +76,7 @@ npm run dev
 ```
 
 4. **Access the application:**
-   - **Frontend**: http://localhost:3004 (or the port shown in your terminal)
+   - **Frontend**: http://localhost:3006 (or the port shown in your terminal)
 
 ### 🎨 Using the Application
 
