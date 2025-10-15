@@ -129,7 +129,7 @@ const TaskManager = () => {
       case 'completed':
         matchesBasicFilter = task.completed;
         break;
- default:
+      default:
         matchesBasicFilter = true;
     }
 

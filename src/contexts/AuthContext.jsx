@@ -57,7 +57,6 @@ export const AuthProvider = ({ children }) => {
     // Save the user data to localStorage
     localStorage.setItem('taskManager_user', JSON.stringify(userData));
     setUser(userData);
-    setLoading(false);
   };
 
   const register = (userData) => {
