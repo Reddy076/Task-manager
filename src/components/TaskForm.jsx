@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import '../Styles/TaskForm.css';
 
+// Task form component for creating new tasks
 const TaskForm = ({ onSubmit, loading }) => {
+  // State hooks for form fields
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
@@ -8,21 +11,25 @@ const TaskForm = ({ onSubmit, loading }) => {
   const [category, setCategory] = useState('personal');
   const [tags, setTags] = useState('');
 
+  // Handle form submission to create a new task
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    // Don't submit if title is empty
     if (!title.trim()) return;
 
+    // Call the onSubmit function passed from parent component with task data
     onSubmit({
       title: title.trim(),
       description: description.trim(),
       priority,
       dueDate: dueDate || null,
       category,
+      // Process tags: split by comma, trim whitespace, and filter out empty tags
       tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag)
     });
 
-    // Reset form
+    // Reset form fields after submission
     setTitle('');
     setDescription('');
     setPriority('medium');

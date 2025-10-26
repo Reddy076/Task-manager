@@ -1,8 +1,11 @@
 import React from 'react';
+import '../Styles/TaskSearch.css';
 
+// Task search and filter component that allows users to search and filter tasks
 const TaskSearch = ({ searchQuery, onSearchChange, onAdvancedFilter, filters }) => {
   return (
     <div className="search-filter-section">
+      {/* Search input field */}
       <div className="search-bar">
         <span className="search-icon">🔍</span>
         <input
@@ -14,6 +17,7 @@ const TaskSearch = ({ searchQuery, onSearchChange, onAdvancedFilter, filters }) 
         />
       </div>
       
+      {/* Advanced filters for category and priority */}
       <div className="advanced-filters">
         <div className="filter-group">
           <label className="filter-label">Category</label>

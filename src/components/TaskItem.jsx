@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
+import '../Styles/TaskItem.css';
 
+// Task item component that displays a single task with edit and delete functionality
 const TaskItem = ({ task, onToggle, onUpdate, onDelete }) => {
+  // State for tracking if the task is in edit mode
   const [isEditing, setIsEditing] = useState(false);
+  // State for editing task title and description
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDescription, setEditDescription] = useState(task.description);
 
+  // Enable edit mode for the task
   const handleEdit = () => {
     setIsEditing(true);
   };
 
+  // Save the edited task and exit edit mode
   const handleSave = () => {
     onUpdate(task.id, {
       title: editTitle.trim(),
@@ -17,17 +23,20 @@ const TaskItem = ({ task, onToggle, onUpdate, onDelete }) => {
     setIsEditing(false);
   };
 
+  // Cancel editing and reset form fields to original values
   const handleCancel = () => {
     setEditTitle(task.title);
     setEditDescription(task.description);
     setIsEditing(false);
   };
 
+  // Format date string to a more readable format
   const formatDate = (dateString) => {
     if (!dateString) return null;
     return new Date(dateString).toLocaleDateString();
   };
 
+  // Check if the task is past due (overdue)
   const isPastDue = task.dueDate && new Date(task.dueDate) < new Date() && !task.completed;
 
   return (

@@ -1,10 +1,14 @@
 import React from 'react';
+import '../Styles/TaskStats.css';
 
+// Task statistics component that displays task metrics and statistics
 const TaskStats = ({ tasks }) => {
+  // Calculate various task statistics
   const stats = {
     total: tasks.length,
     completed: tasks.filter(t => t.completed).length,
     active: tasks.filter(t => !t.completed).length,
+    // Count overdue tasks (not completed and past due date)
     overdue: tasks.filter(t => 
       t.dueDate && 
       new Date(t.dueDate) < new Date() && 
@@ -12,6 +16,7 @@ const TaskStats = ({ tasks }) => {
     ).length
   };
 
+  // Calculate completion rate percentage
   const completionRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
 
   return (

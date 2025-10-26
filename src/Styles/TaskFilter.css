@@ -1,0 +1,30 @@
+/* Task Filter */
+.task-filter {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 10px 20px;
+  border: 2px solid #e9ecef;
+  background: white;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  border-color: var(--accent-red);
+  transform: translateY(-1px);
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.2);
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, var(--accent-red) 0%, var(--accent-red-dark) 100%);
+  color: white;
+  border-color: var(--accent-red);
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+}

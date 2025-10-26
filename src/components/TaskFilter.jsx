@@ -1,6 +1,9 @@
 import React from 'react';
+import '../Styles/TaskFilter.css';
 
+// Task filter component that allows users to filter tasks by status
 const TaskFilter = ({ currentFilter, onFilterChange, taskCounts }) => {
+  // Define filter options with their labels and task counts
   const filters = [
     { key: 'all', label: 'All', count: taskCounts.all },
     { key: 'active', label: 'Active', count: taskCounts.active },

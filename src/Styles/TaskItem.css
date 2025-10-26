@@ -1,0 +1,219 @@
+/* Task Item */
+.task-item {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.task-item:hover {
+  border-color: var(--accent-red);
+  box-shadow: 0 5px 25px rgba(220, 38, 38, 0.2);
+  transform: translateY(-2px);
+}
+
+.task-item.completed {
+  opacity: 0.6;
+  background: rgba(34, 34, 34, 0.8);
+  border-color: #404040;
+}
+
+.task-item.completed .task-title {
+  text-decoration: line-through;
+  color: #6c757d;
+}
+
+.task-item.overdue {
+  border-color: #dc3545;
+  background: #fff5f5;
+}
+
+/* Priority Borders */
+.task-item.priority-high {
+  border-left: 4px solid var(--accent-red);
+  box-shadow: -4px 0 8px rgba(220, 38, 38, 0.2);
+}
+
+.task-item.priority-medium {
+  border-left: 4px solid #f59e0b;
+  box-shadow: -4px 0 8px rgba(245, 158, 11, 0.2);
+}
+
+.task-item.priority-low {
+  border-left: 4px solid #6b7280;
+  box-shadow: -4px 0 8px rgba(107, 114, 128, 0.2);
+}
+
+/* Enhanced Task Items */
+.task-item {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+.task-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+
+.task-item:hover {
+  transform: translateY(-3px) scale(1.01);
+}
+
+/* Task Checkbox */
+.task-checkbox {
+  margin-top: 5px;
+}
+
+.task-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+/* Task Content */
+.task-content {
+  flex: 1;
+}
+
+.task-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2c3e50;
+}
+
+.task-description {
+  color: #6c757d;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.task-meta {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+/* Priority Badge */
+.priority-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.priority-badge.priority-high {
+  background: var(--accent-red);
+  color: white;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
+}
+
+.priority-badge.priority-medium {
+  background: #f59e0b;
+  color: white;
+}
+
+.priority-badge.priority-low {
+  background: #6b7280;
+  color: white;
+}
+
+/* Date Styles */
+.due-date {
+  color: var(--accent-red-light);
+  font-weight: 500;
+}
+
+.due-date.overdue {
+  color: var(--accent-red);
+  font-weight: 600;
+  text-shadow: 0 0 5px rgba(220, 38, 38, 0.5);
+}
+
+.created-date {
+  color: #6c757d;
+}
+
+/* Task Actions */
+.task-actions {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Task Categories and Tags */
+.category-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-work { background: var(--accent-red); color: white; }
+.category-personal { background: #dc2626; color: white; }
+.category-shopping { background: #991b1b; color: white; }
+.category-health { background: #ef4444; color: white; }
+
+.task-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  background: rgba(220, 38, 38, 0.15);
+  color: var(--accent-red-light);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .task-item {
+    padding: 15px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .task-actions {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .task-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .task-item {
+    padding: 15px;
+  }
+}
