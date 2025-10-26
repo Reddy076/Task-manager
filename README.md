@@ -131,7 +131,7 @@ The build artifacts will be stored in the `dist/` directory.
 ```
 task-manager/                      # Unified Full-Stack Repository
 ├── src/                           # React Frontend
-│   ├── components/
+│   ├── components/                # Reusable UI components
 │   │   ├── AuthForm.jsx         # Login/Registration form
 │   │   ├── NotificationSystem.jsx
 │   │   ├── TaskFilter.jsx
@@ -145,6 +145,16 @@ task-manager/                      # Unified Full-Stack Repository
 │   │   └── AuthContext.jsx      # Authentication context
 │   ├── services/
 │   │   └── taskAPI.js           # LocalStorage service layer
+│   ├── Styles/                  # Component-specific CSS files
+│   │   ├── AuthForm.css
+│   │   ├── NotificationSystem.css
+│   │   ├── TaskFilter.css
+│   │   ├── TaskForm.css
+│   │   ├── TaskItem.css
+│   │   ├── TaskList.css
+│   │   ├── TaskSearch.css
+│   │   ├── TaskStats.css
+│   │   └── ThemeToggle.css
 │   ├── App.jsx                      # Main app component
 │   ├── App.css                      # Enhanced styling
 │   ├── index.css                    # Global styles
